@@ -37,6 +37,44 @@ function loadVoices() {
 speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
+// Translate text with serverless function
+async function translateText(text, targetLang) {
+    try {
+        const response = await fetch('/api/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text,
+                target: targetLang
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${await response.text()}`);
+        }
+
+        const data = await response.json();
+        return data.data.translation[0].translatedText;
+    } catch (error) {
+        console.error('Error in Translate Text api: ', error);
+
+        alert('Failed to translate text');
+
+        return text;
+    }
+}
+
+// TTS
+function playText(text, voiceIndex) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (voices[voiceIndex]) {
+        utterance.voice = voices[voiceIndex];
+    }
+    speechSynthesis.speak(utterance);
+}
+
 // Play TTS
 playButton.addEventListener("click", () => {
     const utterance = new SpeechSynthesisUtterance(textInput.value);
