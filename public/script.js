@@ -76,9 +76,26 @@ function playText(text, voiceIndex) {
 }
 
 // Play TTS
-playButton.addEventListener("click", () => {
-    const utterance = new SpeechSynthesisUtterance(textInput.value);
-    const selectedVoice = voices[voiceSelect.value];
-    if (selectedVoice) utterance.voice = selectedVoice;
-    speechSynthesis.speak(utterance);
+playButton.addEventListener("click", async () => {
+    const text = textInput.value.trim();
+    const targetLang = languagesSelect.value;
+    const selectedVoiceIndex = voiceSelect.value;
+
+    if (!text) {
+        alert('Please enter some text!');
+
+        return;
+    }
+
+    try {
+        // Translate text
+        const translatedText = await translateText(text, targetLang);
+
+        // Play text
+        playText(translatedText, selectedVoiceIndex);
+    } catch (error) {
+        console.error("Error during processing: ", error);
+
+        alert('An error occured while trying to translate of speak the text.');
+    }
 });
